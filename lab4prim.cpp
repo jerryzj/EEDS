@@ -124,13 +124,12 @@ int abs(int in){
 
 void print_map(int row,int col,bool **map,string wall,string path){
 	for (int i = 0; i < row; i++){          //print map
-        for (int j = 0; j < col; j++){
-            if(map[i][j]==1){
-                cout<<wall;
-            }
-            else cout<<path;
-            if(j==col-1) cout<<endl;
-        }
-    }
-	cout<<endl;
+        	for (int j = 0; j < col; j++){
+        	   if(map[i][j]==1){
+        	        cout<<wall;
+        	    }
+        	    else cout<<path;
+        	    if(j==col-1) cout<<endl;
+        	}
+    	}
 }
