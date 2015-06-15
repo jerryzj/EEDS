@@ -1,17 +1,17 @@
 #include <iostream>
-#include <cstdbool>
-#include <cmath>
 using namespace std;
 
 struct data{
 	int x1,y1,x2,y2,pt1,pt2;
 };
 void added_map(int x1,int y1,int x2,int y2,bool **map);
-void added_tree(int ptr1,int ptr2,bool *tree,int row);
+void added_tree(int ptr1,int ptr2,bool *tree,int col);
+void print_map(int row,int col,bool **map,string wall,string path);
 bool search(int ptr,bool *tree,int tree_size);
+int abs(int in);
 
 int main(void){
-	int row,col,count,added=0,tree_size;
+	int row,col,count,added=1,tree_size;
 	bool **map;
 	bool *tree;
 	string wall,path;
@@ -36,8 +36,8 @@ int main(void){
 		file[i].y1=y1;
 		file[i].x2=x2;
 		file[i].y2=y2;
-		file[i].pt1 = (y1*row)+x1;
-		file[i].pt2 = (y2*row)+x2;
+		file[i].pt1 = (x1*col)+y1;
+		file[i].pt2 = (x2*col)+y2;
 	}
 	map = new bool*[row];				//create 2D array map
 	for(int i=0;i<row;i++){
@@ -50,31 +50,24 @@ int main(void){
 		}
 	}
 	added_map(file[0].x1,file[0].y1,file[0].x2,file[0].y2,map);
-	tree[file[0].pt1]=1;
-	tree[file[0].pt2]=1;
-	while(added < (count-1)){
-		for(int i=0;i<count;i++){
+	added_tree(file[0].pt1,file[0].pt2,tree,col);
+	while(1){
+		for(int i=0;i<count;){
 			bool result1=search(file[i].pt1,tree,tree_size);
 			bool result2=search(file[i].pt2,tree,tree_size);
 			if((result1==true && result2==false) || (result1==false && result2==true)){
 				added_map(file[i].x1,file[i].y1,file[i].x2,file[i].y2,map);
-				++added;
-				added_tree(file[i].pt1,file[i].pt2,tree,row);
+				added+=1;
+				added_tree(file[i].pt1,file[i].pt2,tree,col);
+				i=0;
 			}
+			else i++;	
 		}
+	if((map[1][1]==0) && (map[row-2][col-2]==0)) break;
 	}
 	map[1][0]=0;			//set entry
 	map[row-2][col-1]=0;		//set exit
-	/////////////Print Map////////////
-	for (int i = 0; i < row; i++){			//print map
-		for (int j = 0; j < col; j++){
-			if(map[i][j]==1){
-				cout<<wall;
-			}
-			else cout<<path;
-			if(j==col-1) cout<<endl;
-		}
-	}
+	print_map(row,col,map,wall,path);
 	return 0;
 }
 
@@ -92,28 +85,52 @@ void added_map(int x1,int y1,int x2,int y2,bool **map){
 }
 
 bool search(int ptr,bool *tree,int tree_size){
-	for (int i = 0; i < tree_size; i++){
-		if(tree[ptr]==1 ) return true;
-	}
-	return false;
+	if(tree[ptr]==1 ) return true;
+	else return false;
 }
 
-void added_tree(int ptr1,int ptr2,bool *tree,int row){
-	if(abs(ptr2-ptr1)%row==0){
-		for(int i = 0;i < (abs(ptr2-ptr1)/row); i++){
-			tree[ptr1+(i*row)]=true;
+void added_tree(int ptr1,int ptr2,bool *tree,int col){
+	int temp_abs=abs((ptr1-ptr2));
+	if(temp_abs%col==0){
+		if(ptr1<ptr2){
+			for(int i = 0;i <= (temp_abs/col); i++){
+				tree[ptr1+(i*col)]=true;
+			}
+		}
+		else{
+			for(int i = 0;i <= (temp_abs/col); i++){
+				tree[ptr2+(i*col)]=true;
+			}
 		}
 	}	
 	else{
 		if(ptr1<ptr2){
-			for (int i = ptr1; i <= ptr2; i++){
+			for(int i = ptr1; i <= ptr2; i++){
 				tree[i]=true;
 			}
 		}
 		else{
-			for (int i = ptr2; i <= ptr1; i++){
+			for(int i = ptr2; i <= ptr1; i++){
 				tree[i]=true;
 			}
 		}
 	}	
+}
+
+int abs(int in){
+	if(in<0) return -in;
+	else return in;
+}
+
+void print_map(int row,int col,bool **map,string wall,string path){
+	for (int i = 0; i < row; i++){          //print map
+        for (int j = 0; j < col; j++){
+            if(map[i][j]==1){
+                cout<<wall;
+            }
+            else cout<<path;
+            if(j==col-1) cout<<endl;
+        }
+    }
+	cout<<endl;
 }
